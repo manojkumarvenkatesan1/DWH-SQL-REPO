@@ -19,14 +19,14 @@ flowchart LR
             stg_payments["stg_payments.csv"]
             stg_creditcard["stg_creditcard.csv"]
         end
-        subgraph STG2["Data Staging Area (Basic Transformations)"]
+        subgraph STG2["Data Staging Area </br>(Basic Transformations : Remove duplicates)"]
             dsa_tbl_customer["dsa_customer.csv"]
             dsa_tbl_accounts["dsa_accounts"]
             dsa_tbl_transactions["dsa_transactions"]
             dsa_tbl_payments["dsa_payments"]
             dsa_tbl_creditcard["dsa_creditcard"]
         end
-        subgraph ODS["Operationa Data Store (Complex Transformations)"]
+        subgraph ODS["Operationa Data Store </br>(Complex Transformations :cleaning, scrubbing)"]
             ods_tbl_customer["ods_customer"]
             ods_tbl_accounts["ods_accounts"]
             ods_tbl_transactions["ods_transactions"]
@@ -47,7 +47,10 @@ flowchart LR
             dm_ccStatements["fact_billingStatements"]
         end
     end
-    subgraph PRE["Consumption"]
+    subgraph PRE["Consumption (BI Reports)"]
+        pre_ccTrends("Credit Trends")
+        pre_payTrends("Payment Trends")
+        pre_transactionTrends("Fraud Trends")
     end
 
     ODS ----> DWH
@@ -71,14 +74,20 @@ flowchart LR
     dsa_tbl_payments--> |"Inserts data into ODS payments table"| ods_tbl_payments
     dsa_tbl_creditcard--> |"Inserts data into ODS credit card table"| ods_tbl_creditcard
 
+    dwh_customer-->|"1 to N"|dwh_accounts
+    dwh_accounts-->|"1 to N"|dwh_transactions
+    dwh_accounts-->|"1 to N"|dwh_payments
+    dwh_customer-->|"1 to N"|dwh_creditcard
+    dwh_creditcard-->|"1 to 1"|dwh_customer
+
     dwh_customer-->dm_customer
     dwh_transactions-->dm_transaction
     dwh_creditcard-->|"join"|dm_ccTransactions
     dwh_transactions-->|"join"|dm_ccTransactions
     ods_tbl_creditcard-->dm_ccStatements
 
-    dwh_customer-->|"1 to N"|dwh_accounts
-    dwh_accounts-->|"1 to N"|dwh_transactions
-    dwh_accounts-->|"1 to N"|dwh_payments
-    dwh_customer-->|"1 to N"|dwh_creditcard
-    dwh_creditcard-->|"1 to 1"|dwh_customer
+    dwh_transactions-->pre_ccTrends
+    dm_ccTransactions-->pre_ccTrends
+
+
+    
