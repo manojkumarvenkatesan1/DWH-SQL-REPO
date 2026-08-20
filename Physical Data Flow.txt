@@ -1,0 +1,84 @@
+---
+config:
+  layout: dagre
+---
+flowchart LR
+    subgraph SRC["Source Systems (Core Banking)"]
+        customerFile["customer.csv"]
+        accountsFile["accounts.csv"]
+        transactionsFile["transactions.csv"]
+        paymentsFile["payments.csv"]
+        creditcardFile["creditcard.csv"]
+
+    end
+    subgraph ETL["Extract Transform Load"]
+        subgraph STG["Staging"]
+            stg_customer["stg_customer.csv"]
+            stg_accounts["stg_accounts.csv"]
+            stg_transactions["stg_transactions.csv"]
+            stg_payments["stg_payments.csv"]
+            stg_creditcard["stg_creditcard.csv"]
+        end
+        subgraph STG2["Data Staging Area (Basic Transformations)"]
+            dsa_tbl_customer["dsa_customer.csv"]
+            dsa_tbl_accounts["dsa_accounts"]
+            dsa_tbl_transactions["dsa_transactions"]
+            dsa_tbl_payments["dsa_payments"]
+            dsa_tbl_creditcard["dsa_creditcard"]
+        end
+        subgraph ODS["Operationa Data Store (Complex Transformations)"]
+            ods_tbl_customer["ods_customer"]
+            ods_tbl_accounts["ods_accounts"]
+            ods_tbl_transactions["ods_transactions"]
+            ods_tbl_payments["ods_payments"]
+            ods_tbl_creditcard["ods_creditcard"]
+        end
+        subgraph DWH["Enterprise Data Warehouse"]
+            dwh_customer["dimn_customer"]
+            dwh_accounts["fact_accounts"]
+            dwh_transactions["fact_transactions"]
+            dwh_payments["fact_payments"]
+            dwh_creditcard["fact_creditcard"]
+        end
+        subgraph DM["Data Mart"]
+            dm_customer["fact_customerKYCStatus"]
+            dm_transaction["fact_transactionCategory"]
+            dm_ccTransactions["agg_creditCardTransactions"]
+            dm_ccStatements["fact_billingStatements"]
+        end
+    end
+    subgraph PRE["Consumption"]
+    end
+
+    ODS ----> DWH
+    DM ----> PRE
+
+    customerFile --> |"Customer data Source push the data files"| stg_customer
+    accountsFile --> |"Master data Source push the data files"| stg_accounts
+    transactionsFile --> |"POS Source push the data files"| stg_transactions
+    paymentsFile --> |"PPS Source push the data files"| stg_payments
+    creditcardFile--> |"CMS Source push the data files"|stg_creditcard
+
+    stg_customer --> |"Inserts data into customer table"| dsa_tbl_customer
+    stg_accounts--> |"Inserts data into accounts table"| dsa_tbl_accounts
+    stg_transactions--> |"Inserts data into transactions table "| dsa_tbl_transactions
+    stg_payments--> |"Inserts data into payments table "| dsa_tbl_payments
+    stg_creditcard--> |"Inserts data into credit card table "| dsa_tbl_creditcard
+
+    dsa_tbl_customer-->|"Inserts data into ODS customer table"| ods_tbl_customer
+    dsa_tbl_accounts--> |"Inserts data into ODS accounts table"| ods_tbl_accounts
+    dsa_tbl_transactions--> |"Inserts data into ODS transactions table"| ods_tbl_transactions
+    dsa_tbl_payments--> |"Inserts data into ODS payments table"| ods_tbl_payments
+    dsa_tbl_creditcard--> |"Inserts data into ODS credit card table"| ods_tbl_creditcard
+
+    dwh_customer-->dm_customer
+    dwh_transactions-->dm_transaction
+    dwh_creditcard-->|"join"|dm_ccTransactions
+    dwh_transactions-->|"join"|dm_ccTransactions
+    ods_tbl_creditcard-->dm_ccStatements
+
+    dwh_customer-->|"1 to N"|dwh_accounts
+    dwh_accounts-->|"1 to N"|dwh_transactions
+    dwh_accounts-->|"1 to N"|dwh_payments
+    dwh_customer-->|"1 to N"|dwh_creditcard
+    dwh_creditcard-->|"1 to 1"|dwh_customer
