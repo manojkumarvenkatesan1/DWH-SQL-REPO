@@ -1,0 +1,43 @@
+erDiagram
+Branch{
+    String Address
+    Integer BranchID
+    String BranchName
+    String City
+    String State
+    Integer Zipcode
+}
+Employee{
+    Integer BranchID
+    Integer EmployeeID
+    String FirstName
+    Date Hiredate
+    String LastName
+    String ManagerID
+    String Position
+}
+Customer{
+    String Address
+    Integer BranchID
+    Integer CustomerID
+    Date DateOfBirth
+    String Email
+    String FirstName
+    String LastName
+    String PhoneNumber
+}
+Accounts{
+Integer AccountID	
+String AccountType	
+Integer Balance	
+Integer CreditScore	
+String Currency	
+Integer CustomerID	
+Date DateOpened	
+Integer ManagerID	
+Integer ODLimit
+}
+Branch ||--|{ Employee : "Can have multiple"
+Branch ||--|{ Customer : "Can have multiple"
+Customer||--|{ Accounts : "Can have multiple"
+Employee ||--|{ Accounts : "Can have multiple"
