@@ -1,0 +1,35 @@
+flowchart LR
+    A[Source Systems
+    <br> - OLTP Data
+    <br> - Structured data in the form of files
+    ] 
+    --Ingestion,Acquisation, Extraction--> 
+    B[Staging Layer
+    <br> - Landing Pad
+    <br> - Higher Granular Data
+    <br> - No historical data maintained here
+    <br> - At this stage data becomes non Volatile
+    ]
+    B --Basic Transformations (cleaning, scrubbing)
+    --> C[ODS Layer
+    <br> - Up to, Or around 3 months historical data, Reason : may be its for reprocessing later if any needed, like if there any change in governemnt rule then it will be easy for reprocessing]
+    C --Complex Transformations, Implementing Business Logic, Divergance of tables (Fact, Dimension, Aggregate) 
+    --> D[EDW Layer
+    <br> - Centralized Repository
+    <br> - Applies business rules
+    <br> - Lowar Granular Data
+    <br> - Up to, Or around 3 - 10 years historical data is maintained]
+    D --Convergance of tables (Fact, Aggregate)--> 
+    E[Data Marts
+    <br> - Subject Oriented Data,derived from fact tables
+    <br> - Lowar Granular Data
+    <br> - Up to, Or around 3 - 5 years historical data is maintained
+    <br> - Fact and aggregation table
+    <br> - Depending up the requirements more subject oriented data can be added into mart]
+    E --Reporting & SQL queries--> 
+    F[BI Reports / Dashboards
+    <br> - Consumption layer
+    <br> - Data is consumed from either Data Mart of DWH
+    <br> - Data consumed from Data Mart for subject wise data for business user
+    <br> - Data consumed from DWH for Enterprise user
+    ]
